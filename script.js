@@ -7,15 +7,11 @@ let snake, apple, direction, gameInterval, score;
 
 const restartButton = document.getElementById("restartButton");
 
-// Botones de control
+// Obtiene los botones de control
 const upButton = document.getElementById("upButton");
 const downButton = document.getElementById("downButton");
 const leftButton = document.getElementById("leftButton");
 const rightButton = document.getElementById("rightButton");
-
-// Variables para controlar el movimiento táctil
-let touchStartX = 0;
-let touchStartY = 0;
 
 function initGame() {
     snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}];
@@ -80,7 +76,7 @@ function updateGame() {
     moveSnake();
 }
 
-// Cambia la dirección de la serpiente con teclado
+// Función para cambiar dirección desde teclado
 function changeDirection(event) {
     if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
     if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
@@ -88,24 +84,26 @@ function changeDirection(event) {
     if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
 }
 
-// Cambia la dirección con los botones
-upButton.addEventListener("click", () => {
-    if (direction !== "DOWN") direction = "UP";
-});
+// Función para cambiar dirección desde botones
+function setupControls() {
+    upButton.addEventListener("click", () => {
+        if (direction !== "DOWN") direction = "UP";
+    });
 
-downButton.addEventListener("click", () => {
-    if (direction !== "UP") direction = "DOWN";
-});
+    downButton.addEventListener("click", () => {
+        if (direction !== "UP") direction = "DOWN";
+    });
 
-leftButton.addEventListener("click", () => {
-    if (direction !== "RIGHT") direction = "LEFT";
-});
+    leftButton.addEventListener("click", () => {
+        if (direction !== "RIGHT") direction = "LEFT";
+    });
 
-rightButton.addEventListener("click", () => {
-    if (direction !== "LEFT") direction = "RIGHT";
-});
+    rightButton.addEventListener("click", () => {
+        if (direction !== "LEFT") direction = "RIGHT";
+    });
+}
 
-// Función para reiniciar el juego
+// Reiniciar el juego
 function restartGame() {
     initGame();
 }
@@ -115,6 +113,9 @@ restartButton.addEventListener("click", restartGame);
 
 // Detecta teclas del teclado
 document.addEventListener("keydown", changeDirection);
+
+// Configurar controles táctiles
+setupControls();
 
 // Inicializamos el juego cuando se carga la página
 initGame();
