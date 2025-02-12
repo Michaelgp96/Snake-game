@@ -84,5 +84,3 @@ generateApple();
 
 // Intervalo para actualizar el juego cada 100 milisegundos
 gameInterval = setInterval(updateGame, 100);
-
-
