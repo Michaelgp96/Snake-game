@@ -1,55 +1,77 @@
-const canvas = document.getElementById("game-board");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Ajustar tamaño del canvas para móviles (múltiplo de gridSize)
-const canvasSize = Math.min(window.innerWidth - 20, 400);
-canvas.width = canvasSize - (canvasSize % 20); // Asegurar que sea múltiplo de 20
-canvas.height = canvasSize - (canvasSize % 20); 
-
 const gridSize = 20;
-const tileCount = canvas.width / gridSize; // Ahora siempre es entero
+const canvasSize = 400;
 
-let snake = [{ x: 10, y: 10 }];
-let direction = { x: 0, y: 0 };
-let food = { x: 5, y: 5 };
+let snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}];
+let apple = {x: 0, y: 0};
+let direction = "RIGHT";
+let gameInterval;
 let score = 0;
-let touchStartX = 0;
-let touchStartY = 0;
 
-// Función principal del juego (igual que antes)
-function gameLoop() {
-    update();
-    draw();
-    setTimeout(gameLoop, 100);
+function drawSnake() {
+    ctx.fillStyle = "green";
+    snake.forEach(segment => {
+        ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+    });
 }
 
-// ... (las funciones update(), draw(), placeFood() y resetGame() son iguales) ...
+function drawApple() {
+    ctx.fillStyle = "red";
+    ctx.fillRect(apple.x, apple.y, gridSize, gridSize);
+}
 
-// Control táctil corregido (coordenadas relativas al canvas)
-canvas.addEventListener("touchstart", e => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    touchStartX = e.touches[0].clientX - rect.left;
-    touchStartY = e.touches[0].clientY - rect.top;
-});
+function generateApple() {
+    apple.x = Math.floor(Math.random() * (canvasSize / gridSize)) * gridSize;
+    apple.y = Math.floor(Math.random() * (canvasSize / gridSize)) * gridSize;
+}
 
-canvas.addEventListener("touchmove", e => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const touchEndX = e.touches[0].clientX - rect.left;
-    const touchEndY = e.touches[0].clientY - rect.top;
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
+function moveSnake() {
+    let head = {x: snake[0].x, y: snake[0].y};
 
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0 && direction.x === 0) direction = { x: 1, y: 0 }; // Derecha
-        else if (deltaX < 0 && direction.x === 0) direction = { x: -1, y: 0 }; // Izquierda
+    if (direction === "UP") head.y -= gridSize;
+    if (direction === "DOWN") head.y += gridSize;
+    if (direction === "LEFT") head.x -= gridSize;
+    if (direction === "RIGHT") head.x += gridSize;
+
+    snake.unshift(head);
+    
+    // Check if snake eats apple
+    if (head.x === apple.x && head.y === apple.y) {
+        score++;
+        generateApple();
     } else {
-        if (deltaY > 0 && direction.y === 0) direction = { x: 0, y: 1 }; // Abajo
-        else if (deltaY < 0 && direction.y === 0) direction = { x: 0, y: -1 }; // Arriba
+        snake.pop();
     }
-});
 
-// Iniciar juego
-placeFood();
-gameLoop();
+    // Check for game over
+    if (head.x < 0 || head.x >= canvasSize || head.y < 0 || head.y >= canvasSize || checkCollision(head)) {
+        clearInterval(gameInterval);
+        alert("Game Over! Score: " + score);
+    }
+}
+
+function checkCollision(head) {
+    return snake.some((segment, index) => index !== 0 && segment.x === head.x && segment.y === head.y);
+}
+
+function updateGame() {
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+    drawSnake();
+    drawApple();
+    moveSnake();
+}
+
+function changeDirection(event) {
+    if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+}
+
+document.addEventListener("keydown", changeDirection);
+
+generateApple();
+gameInterval = setInterval(updateGame, 100);
+
