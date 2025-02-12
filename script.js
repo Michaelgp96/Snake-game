@@ -117,6 +117,11 @@ function handleTouchMove(event) {
     touchStartY = 0;
 }
 
+// Evita el desplazamiento táctil en la página
+document.addEventListener("touchmove", function(event) {
+    event.preventDefault();
+}, { passive: false });
+
 // Agrega los eventos táctiles al canvas
 canvas.addEventListener("touchstart", handleTouchStart);
 canvas.addEventListener("touchmove", handleTouchMove);
