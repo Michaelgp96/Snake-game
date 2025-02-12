@@ -3,11 +3,22 @@ const ctx = canvas.getContext("2d");
 
 const gridSize = 20; // Tamaño de cada "cuadro" de la serpiente y la manzana
 const canvasSize = 400; // Tamaño del canvas
-let snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}]; // Inicialización de la serpiente
-let apple = {x: 0, y: 0}; // Manzana
-let direction = "RIGHT"; // Dirección inicial de la serpiente
-let gameInterval; // Intervalo para el juego
-let score = 0; // Puntuación
+let snake, apple, direction, gameInterval, score;
+
+// Referencia al botón de reinicio
+const restartButton = document.getElementById("restartButton");
+
+// Función para inicializar el juego
+function initGame() {
+    snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}]; // Inicialización de la serpiente
+    apple = {x: 0, y: 0}; // Manzana
+    direction = "RIGHT"; // Dirección inicial de la serpiente
+    score = 0; // Puntuación inicial
+    generateApple(); // Genera la primera manzana
+    if (gameInterval) clearInterval(gameInterval); // Detenemos el intervalo anterior si existía
+    gameInterval = setInterval(updateGame, 100); // Intervalo para actualizar el juego
+    restartButton.style.display = "none"; // Ocultamos el botón de reinicio
+}
 
 // Función para dibujar la serpiente
 function drawSnake() {
@@ -53,6 +64,7 @@ function moveSnake() {
     if (head.x < 0 || head.x >= canvasSize || head.y < 0 || head.y >= canvasSize || checkCollision(head)) {
         clearInterval(gameInterval); // Detiene el juego
         alert("Game Over! Puntuación: " + score); // Muestra la puntuación final
+        restartButton.style.display = "block"; // Muestra el botón de reinicio
     }
 }
 
@@ -79,8 +91,14 @@ function changeDirection(event) {
 
 document.addEventListener("keydown", changeDirection);
 
-// Genera la primera manzana
-generateApple();
+// Función para reiniciar el juego
+function restartGame() {
+    initGame(); // Reinicia el juego
+}
 
-// Intervalo para actualizar el juego cada 100 milisegundos
-gameInterval = setInterval(updateGame, 100);
+// Asociamos la acción de reiniciar al botón
+restartButton.addEventListener("click", restartGame);
+
+// Inicializamos el juego cuando se carga la página
+initGame();
+
