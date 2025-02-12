@@ -117,30 +117,6 @@ function handleTouchMove(event) {
     touchStartY = 0;
 }
 
-// Evita el desplazamiento táctil en la página
-document.addEventListener("touchmove", function(event) {
-    if (event.target === canvas) {
-        event.preventDefault();
-    }
-}, { passive: false });
-
-// Evita la recarga accidental al tocar varias veces
-document.addEventListener("touchstart", function(event) {
-    if (event.target === canvas) {
-        event.preventDefault();
-    }
-}, { passive: false });
-
-// Evita el doble toque que puede hacer zoom o recargar la página
-canvas.addEventListener("dblclick", function(event) {
-    event.preventDefault();
-});
-
-// Evita gestos como deslizar hacia abajo para recargar en móviles
-window.addEventListener("gesturestart", function(event) {
-    event.preventDefault();
-});
-
 
 // Agrega los eventos táctiles al canvas
 canvas.addEventListener("touchstart", handleTouchStart);
