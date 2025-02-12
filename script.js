@@ -1,37 +1,40 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const gridSize = 20; // Tamaño de cada "cuadro" de la serpiente y la manzana
-const canvasSize = 400; // Tamaño del canvas
+const gridSize = 20;
+const canvasSize = 400;
 let snake, apple, direction, gameInterval, score;
 
-// Referencia al botón de reinicio
 const restartButton = document.getElementById("restartButton");
+
+// Variables para controlar el movimiento táctil
+let touchStartX = 0;
+let touchStartY = 0;
 
 // Función para inicializar el juego
 function initGame() {
-    snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}]; // Inicialización de la serpiente
-    apple = {x: 0, y: 0}; // Manzana
-    direction = "RIGHT"; // Dirección inicial de la serpiente
-    score = 0; // Puntuación inicial
-    generateApple(); // Genera la primera manzana
-    if (gameInterval) clearInterval(gameInterval); // Detenemos el intervalo anterior si existía
-    gameInterval = setInterval(updateGame, 100); // Intervalo para actualizar el juego
-    restartButton.style.display = "none"; // Ocultamos el botón de reinicio
+    snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}];
+    apple = {x: 0, y: 0};
+    direction = "RIGHT";
+    score = 0;
+    generateApple();
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(updateGame, 100);
+    restartButton.style.display = "none";
 }
 
 // Función para dibujar la serpiente
 function drawSnake() {
     ctx.fillStyle = "green";
     snake.forEach(segment => {
-        ctx.fillRect(segment.x, segment.y, gridSize, gridSize); // Dibuja cada segmento de la serpiente
+        ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
     });
 }
 
 // Función para dibujar la manzana
 function drawApple() {
     ctx.fillStyle = "red";
-    ctx.fillRect(apple.x, apple.y, gridSize, gridSize); // Dibuja la manzana
+    ctx.fillRect(apple.x, apple.y, gridSize, gridSize);
 }
 
 // Genera una nueva posición aleatoria para la manzana
@@ -44,27 +47,24 @@ function generateApple() {
 function moveSnake() {
     let head = {x: snake[0].x, y: snake[0].y};
 
-    // Cambia la posición de la cabeza de acuerdo a la dirección
     if (direction === "UP") head.y -= gridSize;
     if (direction === "DOWN") head.y += gridSize;
     if (direction === "LEFT") head.x -= gridSize;
     if (direction === "RIGHT") head.x += gridSize;
 
-    snake.unshift(head); // Agrega la nueva cabeza al principio de la serpiente
+    snake.unshift(head);
 
-    // Si la serpiente come la manzana
     if (head.x === apple.x && head.y === apple.y) {
         score++;
-        generateApple(); // Genera una nueva manzana
+        generateApple();
     } else {
-        snake.pop(); // Elimina el último segmento de la serpiente si no comió
+        snake.pop();
     }
 
-    // Verifica si la serpiente choca con los bordes o consigo misma
     if (head.x < 0 || head.x >= canvasSize || head.y < 0 || head.y >= canvasSize || checkCollision(head)) {
-        clearInterval(gameInterval); // Detiene el juego
-        alert("Game Over! Puntuación: " + score); // Muestra la puntuación final
-        restartButton.style.display = "block"; // Muestra el botón de reinicio
+        clearInterval(gameInterval);
+        alert("Game Over! Puntuación: " + score);
+        restartButton.style.display = "block";
     }
 }
 
@@ -75,10 +75,10 @@ function checkCollision(head) {
 
 // Actualiza el juego
 function updateGame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas
-    drawSnake(); // Dibuja la serpiente
-    drawApple(); // Dibuja la manzana
-    moveSnake(); // Mueve la serpiente
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSnake();
+    drawApple();
+    moveSnake();
 }
 
 // Cambia la dirección de la serpiente según las teclas presionadas
@@ -89,11 +89,41 @@ function changeDirection(event) {
     if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
 }
 
-document.addEventListener("keydown", changeDirection);
+// Función para manejar el inicio del toque
+function handleTouchStart(event) {
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+}
+
+// Función para manejar el movimiento del toque
+function handleTouchMove(event) {
+    if (!touchStartX || !touchStartY) return;
+
+    const touchEndX = event.touches[0].clientX;
+    const touchEndY = event.touches[0].clientY;
+
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0 && direction !== "LEFT") direction = "RIGHT";
+        else if (deltaX < 0 && direction !== "RIGHT") direction = "LEFT";
+    } else {
+        if (deltaY > 0 && direction !== "UP") direction = "DOWN";
+        else if (deltaY < 0 && direction !== "DOWN") direction = "UP";
+    }
+
+    touchStartX = 0;
+    touchStartY = 0;
+}
+
+// Agrega los eventos táctiles al canvas
+canvas.addEventListener("touchstart", handleTouchStart);
+canvas.addEventListener("touchmove", handleTouchMove);
 
 // Función para reiniciar el juego
 function restartGame() {
-    initGame(); // Reinicia el juego
+    initGame();
 }
 
 // Asociamos la acción de reiniciar al botón
