@@ -62,5 +62,61 @@ function moveSnake() {
         snake.pop();
     }
 
-    if (head.x < 0 || head.x >= canvasSize
+    if (head.x < 0 || head.x >= canvasSize || head.y < 0 || head.y >= canvasSize || checkCollision(head)) {
+        clearInterval(gameInterval);
+        alert("Game Over! Puntuación: " + score);
+        restartButton.style.display = "block";
+    }
+}
+
+function checkCollision(head) {
+    return snake.some((segment, index) => index !== 0 && segment.x === head.x && segment.y === head.y);
+}
+
+function updateGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSnake();
+    drawApple();
+    moveSnake();
+}
+
+// Cambia la dirección de la serpiente con teclado
+function changeDirection(event) {
+    if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+}
+
+// Cambia la dirección con los botones
+upButton.addEventListener("click", () => {
+    if (direction !== "DOWN") direction = "UP";
+});
+
+downButton.addEventListener("click", () => {
+    if (direction !== "UP") direction = "DOWN";
+});
+
+leftButton.addEventListener("click", () => {
+    if (direction !== "RIGHT") direction = "LEFT";
+});
+
+rightButton.addEventListener("click", () => {
+    if (direction !== "LEFT") direction = "RIGHT";
+});
+
+// Función para reiniciar el juego
+function restartGame() {
+    initGame();
+}
+
+// Asociamos la acción de reiniciar al botón
+restartButton.addEventListener("click", restartGame);
+
+// Detecta teclas del teclado
+document.addEventListener("keydown", changeDirection);
+
+// Inicializamos el juego cuando se carga la página
+initGame();
+
 
